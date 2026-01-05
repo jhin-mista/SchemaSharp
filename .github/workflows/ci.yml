@@ -5,12 +5,37 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      buildConfiguration:
+        description: 'Build configuration'
+        required: false
+        default: 'Release'
+        type: choice
+        options:
+          - Release
+          - Debug
+      buildVerbosity:
+        description: 'Log verbosity level'
+        required: false
+        default: 'minimal'
+        type: choice
+        options:
+          - quiet 
+          - minimal
+          - normal
+          - detailed
+          - diagnostic
 
 env:
-  BUILD_CONFIG: Release
+  BUILD_CONFIG: ${{ github.event_name == 'workflow_dispatch' && inputs.buildConfiguration || 'Release' }}
+  BUILD_VERBOSITY: ${{ github.event_name == 'workflow_dispatch' && inputs.buildVerbosity || 'minimal' }}
+  COVERAGE_ARTIFACT_NAME: ${{ github.run_id }}-${{ github.run_attempt }}-coverage-data
+  REPORT_ARTIFACT_NAME: ${{ github.run_id }}-${{ github.run_attempt }}-report
 
 jobs:
   ci:
+    name: Continuous Integration
     runs-on: ubuntu-latest
 
     steps:
@@ -32,11 +57,78 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore --locked-mode
 
-    - name: Format
-      run: dotnet format --verify-no-changes --verbosity diagnostic --no-restore
-
     - name: Build
-      run: dotnet build --no-restore --configuration ${{ env.BUILD_CONFIG }}
+      run: dotnet build --no-restore --configuration ${{ env.BUILD_CONFIG }} --verbosity ${{ env.BUILD_VERBOSITY }}
+
+    - name: Format
+      run: dotnet format --no-restore --verify-no-changes --verbosity ${{ env.BUILD_VERBOSITY }}
 
     - name: Test
-      run: dotnet test --no-build --verbosity normal --configuration ${{ env.BUILD_CONFIG }}
+      run: dotnet test --no-build --verbosity ${{ env.BUILD_VERBOSITY }} --configuration ${{ env.BUILD_CONFIG }} --settings ./test/coverage.runsettings
+
+    - name: Upload coverage data
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.COVERAGE_ARTIFACT_NAME }}
+        path: test/TestResults/*
+        retention-days: 1
+        if-no-files-found: error
+
+  code-coverage:
+    name: Code Coverage
+    needs: ci
+    runs-on: ubuntu-latest
+
+    if: ${{ github.event_name == 'pull_request' }}
+
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+    - name: Setup git
+      run: |
+       git config --global core.autocrlf false
+       git config --global core.eol crlf
+
+    - name: Check out
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: 'global.json'
+        cache: true
+        cache-dependency-path: '**/packages.lock.json'
+
+    - name: Download coverage data
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.COVERAGE_ARTIFACT_NAME }}
+        path: ${{ github.workspace }}/coverage-data
+
+    - name: Code Coverage
+      id: code-coverage
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.4.12
+      with:
+        reports: coverage-data/*/coverage.cobertura.xml
+        targetdir: coveragereport
+        reporttypes: MarkdownSummaryGithub;Html_Dark
+        verbosity: Info
+        customSettings: 'minimumCoverageThresholds:fullMethodCoverage=100;settings:numberOfReportsParsedInParallel=5;settings:numberOfReportsMergedInParallel=5'
+
+    - name: Upload Coverage Report
+      id: report-upload
+      if: ${{ failure() && steps.code-coverage.outcome == 'failure' }}
+      uses: actions/upload-artifact@v4
+      with:
+        path: coveragereport/*
+        name: ${{ env.REPORT_ARTIFACT_NAME }}
+        retention-days: 3
+        if-no-files-found: error
+
+    - name: Add coverage summary comment to PR
+      if: ${{ failure() && steps.report-upload.outcome != 'skipped' }}
+      run: gh pr comment ${{ github.event.number }} --edit-last --create-if-none --body "$(cat coveragereport/SummaryGithub.md; echo -e '\nDetailed report at ${{ steps.report-upload.outputs.artifact-url }}')"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
