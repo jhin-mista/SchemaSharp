@@ -1,0 +1,42 @@
+name: CI pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_CONFIG: Release
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup git
+      run: |
+       git config --global core.autocrlf false
+       git config --global core.eol crlf
+
+    - name: Check out
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        global-json-file: 'global.json'
+        cache: true
+        cache-dependency-path: '**/packages.lock.json'
+
+    - name: Restore dependencies
+      run: dotnet restore --locked-mode
+
+    - name: Format
+      run: dotnet format --verify-no-changes --verbosity diagnostic --no-restore
+
+    - name: Build
+      run: dotnet build --no-restore --configuration ${{ env.BUILD_CONFIG }}
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal --configuration ${{ env.BUILD_CONFIG }}

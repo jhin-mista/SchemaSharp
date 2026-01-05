@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Cosmetic warning during build time. No issues at runtime -->
+    <NoWarn>$(NoWarn);MSB3243</NoWarn>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SchemaSharp\SchemaSharp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <!-- When referencing a analyzer project like a normal project,
+  the runtime dependencies are not copied to the build folder of the consuming project automatically. -->
+  <PropertyGroup>
+    <GeneratorTfm>netstandard2.0</GeneratorTfm>
+    <GeneratorOutputPath>$(SolutionDir)src\SchemaSharp\bin\$(Configuration)\$(GeneratorTfm)\</GeneratorOutputPath>
+  </PropertyGroup>
+
+  <Target Name="CopyGeneratorDependencies" AfterTargets="Build">
+    <ItemGroup>
+      <GeneratorDependencies Include="$(GeneratorOutputPath)*.dll" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(GeneratorDependencies)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>
