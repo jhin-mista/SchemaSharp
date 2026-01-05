@@ -82,8 +82,11 @@ public sealed class SchemaSharpGenerator : IIncrementalGenerator
     {
         token.ThrowIfCancellationRequested();
 
-        return (node is ClassDeclarationSyntax or StructDeclarationSyntax or RecordDeclarationSyntax)
-            && ((TypeDeclarationSyntax)node).AttributeLists.Count > 0;
+        return node switch
+        {
+            ClassDeclarationSyntax => true,
+            _ => false,
+        };
     }
 
     private static void RegisterMarkerAttribute(IncrementalGeneratorPostInitializationContext context)
@@ -101,7 +104,7 @@ namespace {{Namespace}}
     /// </summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Microsoft.CodeAnalysis.EmbeddedAttribute]
-    [global::System.AttributeUsage(global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct, Inherited = false, AllowMultiple = false)]
+    [global::System.AttributeUsage(global::System.AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     [global::System.Runtime.CompilerServices.CompilerGenerated]
     internal sealed class {{AttributeName}} : Attribute {}
 }
@@ -112,25 +115,11 @@ namespace {{Namespace}}
     {
         token.ThrowIfCancellationRequested();
 
-        if (context.TargetNode is not TypeDeclarationSyntax typeDeclarationSyntax
-            || context.SemanticModel.GetDeclaredSymbol(typeDeclarationSyntax, token) is not INamedTypeSymbol typeSymbol)
-        {
-            var diagnosticDescriptor = new DiagnosticDescriptor(
-                "SCHEMASHARP0001"
-                , "Generator can only be used on a type"
-                , "Remove the attribute."
-                , $"{nameof(SchemaSharp)}.Generators"
-                , DiagnosticSeverity.Error
-                , true);
+        // The null forgiving operator can be used because we are only dealing with type declaration syntax nodes at this point.
+        // If we would end up here with other types of syntax nodes, the predicate at the call site has an issue.
+        var typeSymbol = context.SemanticModel.GetDeclaredSymbol(context.TargetNode, token)!;
 
-            var location = context.TargetNode.GetLocation();
-
-            var diagnosticInfo = new DiagnosticInfo(diagnosticDescriptor, location);
-
-            return new(null, [diagnosticInfo]);
-        }
-
-        TypeSymbolInformation typeSymbolInformation = new(typeSymbol.Name, typeSymbol.TypeKind, typeSymbol.ContainingNamespace.ToString());
+        TypeSymbolInformation typeSymbolInformation = new(typeSymbol.Name, typeSymbol.ContainingNamespace.ToString());
 
         return new(typeSymbolInformation, new());
     }

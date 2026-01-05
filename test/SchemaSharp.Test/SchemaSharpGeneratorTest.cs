@@ -91,7 +91,7 @@ public sealed partial class SampleConfig
 using SchemaSharp;
 
 [GenerateFromJsonSchema]
-public sealed partial class SampleConfig
+public partial class SampleConfig
 {
 }
 """;
@@ -201,6 +201,51 @@ public sealed partial class SampleConfig
         var generatedSource = generatedSourceResults.Single(x => x.HintName == "SampleConfig.g.cs");
 
         Assert.That(generatedSource.SourceText.ToString(), Does.Contain(expectedAnnotation));
+    }
+
+    [TestCase("struct")]
+    [TestCase("record")]
+    [TestCase("interface")]
+    public void GenerateType_WhenAttributeTargetNotClass_ShouldNotGenerate(string typeDeclaration)
+    {
+        // arrange
+        var source = $$"""
+using SchemaSharp;
+
+[GenerateFromJsonSchema]
+public sealed partial {{typeDeclaration}} SampleConfig
+{
+}
+""";
+
+        const string schemaJson = """
+{
+  "title": "SampleConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string" }
+  }
+}
+""";
+
+        var compilation = CreateCompilation(source);
+        var inMemoryAdditionalText = new InMemoryAdditionalText("SampleConfig.schema.json", schemaJson);
+        AdditionalText[] additionalTexts = [inMemoryAdditionalText];
+
+        var generatorDriver = CreateGeneratorDriver().AddAdditionalTexts(additionalTexts.ToImmutableArray());
+
+        // act
+        var resultGeneratorDriver = generatorDriver.RunGeneratorsAndUpdateCompilation(compilation, out var newCompilation, out var diagnostics);
+
+        // assert
+        Assert.That(diagnostics, Is.Empty, GetAllDiagnosticMessages(diagnostics));
+
+        var runResult = resultGeneratorDriver.GetRunResult();
+        var generatedSources = runResult.Results.SelectMany(r => r.GeneratedSources).ToArray();
+
+        Assert.That(generatedSources, Has.Length.EqualTo(2));
+        Assert.That(generatedSources, Has.None.Matches<GeneratedSourceResult>(x => x.HintName == "SampleConfig.g.cs"));
     }
 
     private static CSharpCompilation CreateCompilation(string source)

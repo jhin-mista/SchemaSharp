@@ -160,7 +160,7 @@ public sealed class EquatableArrayTests
         var sut = new EquatableArray<int>([1, 2, 3]);
 
         // act
-        var result = sut.Count;
+        var result = sut.Length;
 
         // assert
         Assert.That(result, Is.EqualTo(3));
