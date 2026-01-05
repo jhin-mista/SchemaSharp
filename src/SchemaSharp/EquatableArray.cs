@@ -48,14 +48,9 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-        if (Array is not T[] array)
-        {
-            return 0;
-        }
-
         HashCode hashCode = default;
 
-        foreach (T item in array)
+        foreach (T item in Array)
         {
             hashCode.Add(item);
         }
@@ -99,7 +94,7 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-        return ((IEnumerable<T>)(Array)).GetEnumerator();
+        return ((IEnumerable<T>)Array).GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -111,7 +106,7 @@ internal readonly struct EquatableArray<T> : IEquatable<EquatableArray<T>>, IEnu
     /// <summary>
     /// Gets the number of elements in the array.
     /// </summary>
-    public int Count => Array?.Length ?? 0;
+    public int Length => Array.Length;
 
     /// <summary>
     /// Checks whether two <see cref="EquatableArray{T}"/> values are the same.

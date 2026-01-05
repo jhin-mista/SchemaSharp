@@ -1,5 +1,3 @@
-﻿using Microsoft.CodeAnalysis;
+﻿namespace SchemaSharp;
 
-namespace SchemaSharp;
-
-internal sealed record TypeSymbolInformation(string Name, TypeKind TypeKind, string Namespace);
+internal sealed record TypeSymbolInformation(string Name, string Namespace);
