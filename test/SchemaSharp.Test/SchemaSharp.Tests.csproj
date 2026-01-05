@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- Cosmetic warning during build time. No issues at runtime -->
-    <NoWarn>$(NoWarn);MSB3243</NoWarn>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -21,7 +19,7 @@
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
-  <!-- When referencing a analyzer project like a normal project,
+  <!-- When referencing an analyzer project like a normal project,
   the runtime dependencies are not copied to the build folder of the consuming project automatically. -->
   <PropertyGroup>
     <GeneratorTfm>netstandard2.0</GeneratorTfm>

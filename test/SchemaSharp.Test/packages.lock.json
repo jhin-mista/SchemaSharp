@@ -127,15 +127,8 @@
       "schemasharp": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Bcl.HashCode": "[6.0.0, )",
           "Microsoft.CodeAnalysis.CSharp": "[5.0.0, )"
         }
-      },
-      "Microsoft.Bcl.HashCode": {
-        "type": "CentralTransitive",
-        "requested": "[6.0.0, )",
-        "resolved": "6.0.0",
-        "contentHash": "GI4jcoi6eC9ZhNOQylIBaWOQjyGaR8T6N3tC1u8p3EXfndLCVNNWa+Zp+ocjvvS3kNBN09Zma2HXL0ezO0dRfw=="
       },
       "Microsoft.CodeAnalysis.Analyzers": {
         "type": "CentralTransitive",

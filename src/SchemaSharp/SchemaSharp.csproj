@@ -5,37 +5,50 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IsPackable>true</IsPackable>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackRelease>true</PackRelease>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>SchemaSharp</Title>
+    <PackageId>SchemaSharp</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Benedict Zendel</Authors>
+    <PackageOutputPath>$(SolutionDir)artifacts</PackageOutputPath>
+    <PackageDescription>SchemaSharp is a C# source generator that generates C# classes from JSON Schema.</PackageDescription>
+    <PackageTags>source-generator;json-schema;code-generation</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/jhin-mista/SchemaSharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jhin-mista/SchemaSharp</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fluid.Core" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="Microsoft.Bcl.HashCode" IncludeAssets="all" GeneratePathProperty="true" />
+    <None Include="../../README.md" Pack="true" PackagePath="/"/>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" IncludeAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="Namotion.Reflection" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="NJsonSchema" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="NJsonSchema.Annotations" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="NJsonSchema.CodeGeneration" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="NJsonSchema.CodeGeneration.CSharp" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="Parlot" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="System.Text.Encodings.Web" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-  </PropertyGroup>
-
-  <Target Name="GetDependencyTargetPaths" AfterTargets="ResolvePackageDependenciesForBuild">
+  <Target Name="CollectAnalyzerDependencyFiles" AfterTargets="ResolvePackageDependenciesForBuild" DependsOnTargets="ResolvePackageAssets">
     <ItemGroup>
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGParlot)\lib\netstandard2.0\Parlot.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGFluid_Core)\lib\netstandard2.0\Fluid.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGNJsonSchema_CodeGeneration)\lib\netstandard2.0\NJsonSchema.CodeGeneration.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGNJsonSchema_CodeGeneration_CSharp)\lib\netstandard2.0\NJsonSchema.CodeGeneration.CSharp.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGNJsonSchema)\lib\netstandard2.0\NJsonSchema.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGNJsonSchema_Annotations)\lib\netstandard2.0\NJsonSchema.Annotations.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGNamotion_Reflection)\lib\netstandard2.0\Namotion.Reflection.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGSystem_Text_Encodings_Web)\lib\netstandard2.0\System.Text.Encodings.Web.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="@(ResolvedCompileFileDefinitions)" IncludeRuntimeDependency="false" />
+      <!-- Runtime assemblies from packages for this project (direct + transitive) -->
+      <_AnalyzerRuntimeAssemblies Include="@(RuntimeCopyLocalItems)" />
+    </ItemGroup>
+
+    <!-- Ensure the generator and its dependencies are packed into the analyzer package -->
+    <ItemGroup>
+      <None Include="@(_AnalyzerRuntimeAssemblies)" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
+      <None Include="$(OutputPath)\$(AssemblyName).dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
     </ItemGroup>
   </Target>
 </Project>
