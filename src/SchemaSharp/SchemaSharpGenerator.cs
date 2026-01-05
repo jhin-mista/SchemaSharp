@@ -104,7 +104,7 @@ namespace {{Namespace}}
     /// </summary>
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     [global::Microsoft.CodeAnalysis.EmbeddedAttribute]
-    [global::System.AttributeUsage(global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct, Inherited = false, AllowMultiple = false)]
+    [global::System.AttributeUsage(global::System.AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     [global::System.Runtime.CompilerServices.CompilerGenerated]
     internal sealed class {{AttributeName}} : Attribute {}
 }
