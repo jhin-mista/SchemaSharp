@@ -24,6 +24,7 @@
     <PackageProjectUrl>https://github.com/jhin-mista/SchemaSharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jhin-mista/SchemaSharp</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright (c) 2026 Benedict Zendel</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
