@@ -116,6 +116,7 @@ jobs:
         reporttypes: MarkdownSummaryGithub;Html_Dark
         verbosity: Info
         customSettings: 'minimumCoverageThresholds:fullMethodCoverage=100;settings:numberOfReportsParsedInParallel=5;settings:numberOfReportsMergedInParallel=5'
+        classfilters: '-*Costura*'
 
     - name: Upload Coverage Report
       id: report-upload
