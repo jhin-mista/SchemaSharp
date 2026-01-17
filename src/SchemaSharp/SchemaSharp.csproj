@@ -15,7 +15,7 @@
   <PropertyGroup>
     <Title>SchemaSharp</Title>
     <PackageId>SchemaSharp</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Benedict Zendel</Authors>
     <PackageOutputPath>$(SolutionDir)artifacts</PackageOutputPath>
     <PackageDescription>SchemaSharp is a C# source generator that generates C# classes from JSON Schema.</PackageDescription>
@@ -28,29 +28,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="/"/>
-    <None Include="../../THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="/"/>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath="/" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" IncludeAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" IncludeAssets="all" />
     <PackageReference Include="NJsonSchema" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="NJsonSchema.Annotations" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="NJsonSchema.CodeGeneration" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="NJsonSchema.CodeGeneration.CSharp" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
+    
+    <PackageReference Include="Costura.Fody" PrivateAssets="all" IncludeAssets="compile;build;buildTransitive" />
+    <PackageReference Include="Fody" PrivateAssets="all" IncludeAssets="build;buildTransitive" />
   </ItemGroup>
 
-  <Target Name="CollectAnalyzerDependencyFiles" AfterTargets="ResolvePackageDependenciesForBuild" DependsOnTargets="ResolvePackageAssets">
     <ItemGroup>
-      <!-- Runtime assemblies from packages for this project (direct + transitive) -->
-      <_AnalyzerRuntimeAssemblies Include="@(RuntimeCopyLocalItems)" />
-    </ItemGroup>
-
-    <!-- Ensure the generator and its dependencies are packed into the analyzer package -->
-    <ItemGroup>
-      <None Include="@(_AnalyzerRuntimeAssemblies)" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
       <None Include="$(OutputPath)\$(AssemblyName).dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
     </ItemGroup>
-  </Target>
 </Project>
