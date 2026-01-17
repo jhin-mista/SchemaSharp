@@ -15,7 +15,7 @@
   <PropertyGroup>
     <Title>SchemaSharp</Title>
     <PackageId>SchemaSharp</PackageId>
-    <Version>0.1.1-alpha3</Version>
+    <Version>0.1.1</Version>
     <Authors>Benedict Zendel</Authors>
     <PackageOutputPath>$(SolutionDir)artifacts</PackageOutputPath>
     <PackageDescription>SchemaSharp is a C# source generator that generates C# classes from JSON Schema.</PackageDescription>
