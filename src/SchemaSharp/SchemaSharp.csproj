@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" IncludeAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" IncludeAssets="all" />
     <PackageReference Include="NJsonSchema" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="NJsonSchema.Annotations" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
     <PackageReference Include="NJsonSchema.CodeGeneration" PrivateAssets="all" IncludeAssets="all" GeneratePathProperty="true" />
