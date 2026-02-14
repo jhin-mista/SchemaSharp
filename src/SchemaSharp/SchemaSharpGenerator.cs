@@ -203,6 +203,8 @@ namespace {{Namespace}}
                 GenerateOptionalPropertiesAsNullable = true,
                 GenerateNullableReferenceTypes = true,
                 TemplateDirectory = input.TemplateDirectories,
+                JsonLibrary = CSharpJsonLibrary.SystemTextJson,
+                UseRequiredKeyword = true,
             };
 
             var generator = new CSharpGenerator(configuration.JsonSchema, settings);
